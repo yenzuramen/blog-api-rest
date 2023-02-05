@@ -10,8 +10,8 @@ const PostSchema = Schema({
         required: true
     },
     date:  {
-        type: date,
-        default: Date.now
+        type: Date,
+        default: Date.now()
     },
     image: {
         type: String,

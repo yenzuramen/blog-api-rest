@@ -1,5 +1,6 @@
 
 const validator = require('validator');
+const Post = require('../models/Post'); //Controlador del post 
 
 const test = (req, res) => {
     return res.status(200).json({
@@ -33,11 +34,11 @@ const save = (req, res) => {
 
     try {
 
-        let validateTitle = !validator.isEmpty(params.title)  && validator.isLength(params.title,{min:0,max:50})
+        let validateTitle = !validator.isEmpty(params.title) && validator.isLength(params.title, { min: 0, max: 50 })
         let validateContent = !validator.isEmpty(params.content)
 
-        if(!validateTitle||!validateContent){
-            throw new Error("Info isnt valid")
+        if (!validateTitle || !validateContent) {
+            throw new Error("input not valid")
         }
 
     } catch (error) {
@@ -47,20 +48,30 @@ const save = (req, res) => {
         })
     }
 
-    //Create object with model
-
-    //Asign values (automatic or manual)
+    //Create object with model (automatic)
+    const post = new Post(params);
+    console.log('post object ---');
+    console.log(post);
+    // //manual-----
+    // // const post = new Post();
+    // //post.title: params.title
 
     //Save post on database
+    post.save((error, savedItem) => {
 
-    //return result
+        console.log('---------------------------------');
+        //si hay un error
+        if (error || !savedItem) {
+            throw new Error("Couldnt save info in database")
+        }
 
+        //si todo sale bien
+        return res.status(200).json({
+            status: 'succes',
+            post: savedItem
+        })
+    });
 
-
-    return res.status(200).json({
-        mensaje: 'save',
-        params: req.body
-    })
 }
 
 module.exports = {
