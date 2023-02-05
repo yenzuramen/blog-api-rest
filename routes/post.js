@@ -13,6 +13,19 @@ router.get("/curso", postController.test2)
 router.post("/save", postController.save)
 
 //get posts
-router.get("/getPosts", postController.get)
+router.get("/getPosts/:ultimos?", postController.get)  //ultimos opcional
+
+//get posts
+router.get("/Post/:id", postController.getOnePost)  //ultimos opcional
+
+//get delete
+router.delete("/Post/:id", postController.deleteOne)  //ultimos opcional
+
+//edit posts
+router.put("/Post/:id", postController.edit)  //ultimos opcional
+
+
+
+
 
 module.exports = router;
