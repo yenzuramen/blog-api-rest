@@ -25,31 +25,12 @@ app.use('/api',postRoutes) //se cargan todas las rutas que se tengan en el archi
 
 
 //Routas hardcoded ---------------------
-app.get('/', (req, res) => {
+// app.get('/', (req, res) => {
 
-    return res.status(200).send(
-        '<h1> Testing index </h1>'
-    )
-})
-
-app.get('/probando', (req, res) => {
-
-    console.log('se ejecuta el endpoint probando');
-
-
-    return res.status(200).json(
-        [{
-            course: 'React Master',
-            student: 'Yen GM',
-            url: 'https://www.udemy.com/course/master-en-react-aprender-reactjs-hooks-mern-nodejs-jwt/learn/lecture/33022258#questions'
-        },
-        {
-            course: 'React Master',
-            student: 'Yen GM',
-            url: 'https://www.udemy.com/course/master-en-react-aprender-reactjs-hooks-mern-nodejs-jwt/learn/lecture/33022258#questions'
-        }]
-    )
-})
+//     return res.status(200).send(
+//         '<h1> Testing index </h1>'
+//     )
+// })
 
 
 //Crear servidor y escuchar peticiones 
