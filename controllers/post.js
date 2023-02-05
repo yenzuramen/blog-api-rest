@@ -50,8 +50,6 @@ const save = (req, res) => {
 
     //Create object with model (automatic)
     const post = new Post(params);
-    console.log('post object ---');
-    console.log(post);
     // //manual-----
     // // const post = new Post();
     // //post.title: params.title
@@ -74,8 +72,31 @@ const save = (req, res) => {
 
 }
 
+const get = (req, res) => {
+
+    //consulta y callback
+    let query = Post.find({}).exec((error, posts) => {
+        if (error || !posts) {
+
+            return res.status(404).json({
+                status: 'error',
+                mensaje: 'No se han encontrado posts'
+            })
+
+        }
+
+        return res.status(200).send({
+            status: 'succes',
+            posts
+        })
+    })
+
+
+}
+
 module.exports = {
     test,
     test2,
-    save
+    save,
+    get
 }
