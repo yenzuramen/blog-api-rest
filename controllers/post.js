@@ -1,6 +1,11 @@
 
+const fs = require('fs')
+const path = require('path')//Let's us get a file and send it with res.sendFile
+
 const validator = require('validator');
 const Post = require('../models/Post'); //Controlador del post 
+
+const { validatePost } = require('../helpers/validatePost')
 
 const test = (req, res) => {
     return res.status(200).json({
@@ -31,22 +36,16 @@ const save = (req, res) => {
     console.log(params);
 
     //validate data
-
     try {
 
-        let validateTitle = !validator.isEmpty(params.title) && validator.isLength(params.title, { min: 0, max: 50 })
-        let validateContent = !validator.isEmpty(params.content)
-
-        if (!validateTitle || !validateContent) {
-            throw new Error("input not valid")
-        }
-
+        validatePost(params)
     } catch (error) {
         return res.status(400).json({
             status: 'error',
             mensaje: 'faltan datos: ' + error
         })
     }
+
 
     //Create object with model (automatic)
     const post = new Post(params);
@@ -156,25 +155,18 @@ const edit = (req, res) => {
     let id = req.params.id
 
     let data = req.body
-
-
     try {
 
-        let validateTitle = !validator.isEmpty(data.title) && validator.isLength(data.title, { min: 0, max: 50 })
-        let validateContent = !validator.isEmpty(data.content)
-
-        if (!validateTitle || !validateContent) {
-            throw new Error("input not valid")
-        }
-
+        validatePost(data)
     } catch (error) {
         return res.status(400).json({
             status: 'error',
             mensaje: 'faltan datos: ' + error
         })
     }
+
     //params (id, datos a actualizar)
-    Post.findOneAndUpdate({ _id: id }, data,{new:true},(error, updatedItem) => {
+    Post.findOneAndUpdate({ _id: id }, data, { new: true }, (error, updatedItem) => {
 
 
         if (error) {
@@ -194,6 +186,117 @@ const edit = (req, res) => {
 
 }
 
+const upload = (req, res) => {
+
+    //Configurar multer --en rutas
+
+    if (!req.file && !req.files) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Peticion invalida'
+        })
+    }
+
+    //conseguir el nombre del archivo
+    let filename = req.file.originalname;
+
+    //conseguir la extension
+    let nameSplit = filename.split('\.')
+    let ext = nameSplit[1]
+
+
+    let allowedExtensions = ['PNG', "GIF", "JPG", "JPEG"]
+    //comprobar la extension correcta
+    if (!allowedExtensions.includes(ext.toUpperCase())) {
+        //Deleting the file
+        fs.unlink(req.file.path, (error) => {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Invalid file type'
+            })
+        })
+    } else {
+        let id = req.params.id
+
+
+        //params (id, datos a actualizar)
+        Post.findOneAndUpdate({ _id: id }, { image: req.file.filename }, { new: true },
+            (error, updatedItem) => {
+
+                if (error) {
+                    return res.status(400).json({
+                        status: 'error',
+                        mensaje: error
+                    })
+                }
+
+                //Si existe resultado
+                return res.status(200).send({
+                    status: 'succes',
+                    updatedItem,
+                    uploadedItem: req.file
+                })
+            })
+
+    }
+
+}
+
+const image = (req, res) => {
+    let filename = req.params.filename
+    console.log(filename);
+    let realPath = './images/posts/' + filename
+
+    fs.stat(realPath, (error, exists) => {
+        console.log(exists);
+        if (exists) {
+            return res.sendFile(path.resolve(realPath)) //se retorna el archivo
+        } else {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Image doesnt exist'
+            })
+        }
+    })
+}
+
+const search = (req, res) => {
+
+    //get search string
+
+    let search = req.params.search
+    console.log(search);
+
+    //find OR  
+    Post.find({
+        '$or': [
+            { 'title': { "$regex": search, "$options": "i" } },
+            { 'content': { "$regex": search, "$options": "i" } }
+        ]
+    })
+        .sort({ date: -1 })
+            .exec((error, foundItems) => {
+
+                if (error || foundItems.length==0) {
+                    return res.status(400).json({
+                        status: 'error',
+                        message: 'No se encontraron posts'
+                    })
+                }
+
+
+                return res.status(200).send({
+                    status: 'succes',
+                    foundItems,
+                })
+
+            })
+
+
+        
+
+}
+
 module.exports = {
     test,
     test2,
@@ -201,5 +304,8 @@ module.exports = {
     get,
     getOnePost,
     deleteOne,
-    edit
+    edit,
+    upload,
+    image,
+    search
 }
