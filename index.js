@@ -1,13 +1,14 @@
 const { conexion } = require('./database/connection') //importando metodo de conexion 
 const express = require('express') //Para el servidor 
 const cors = require('cors')
+require('dotenv').config()
 
 // Conectando a la bd
 conexion();
 
 //Create node server
 const app = express();
-const puerto = 3900;
+const port = process.env.API_PORT || 4001
 
 //Configurar cors
 app.use(cors());
@@ -35,6 +36,6 @@ app.use('/api',postRoutes) //se cargan todas las rutas que se tengan en el archi
 
 
 //Crear servidor y escuchar peticiones 
-app.listen(puerto, () => {
-    console.log('Server running and listening');
+app.listen(port, () => {
+    console.log("Server running on port " + port);
 })

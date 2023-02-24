@@ -1,12 +1,14 @@
 const mongoose = require('mongoose')
+require('dotenv').config()
 
-const conexion = async() => {
+const conexion = async () => {
 
     try {
-       await  mongoose.connect('mongodb://localhost:27017/blog')
+        const DB_URI = process.env.DB_URI
+        await mongoose.connect(DB_URI)
 
 
-       console.log('CONNECTED SUCCESFULLY');
+        console.log('CONNECTED SUCCESFULLY');
         //Parametros a pasar dentro de objeto
         //useNewUrlParser:true
 
